@@ -1,0 +1,19 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" tools:context="comsri.gps_buzz.All4">
+
+      <item
+        android:id="@+id/viewalarm"
+        android:orderInCategory="100"
+        android:title="View Alarm"/>
+    <item
+        android:id="@+id/changering"
+        android:orderInCategory="100"
+        android:title="Change Ringtone"/>
+
+    <item
+        android:id="@+id/tutorial"
+        android:orderInCategory="100"
+        android:title="Tutorial ON"/>
+
+</menu>

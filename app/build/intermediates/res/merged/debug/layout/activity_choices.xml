@@ -1,0 +1,44 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    tools:context=".Choices" >
+
+    <TextView
+        android:id="@+id/upper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:alpha="0.75"
+        android:background="#000000"
+        android:gravity="center_horizontal"
+        android:textColor="#ffffff"
+        android:textSize="15sp"
+        android:typeface="sans"
+        android:text="Long press anywhere to choose a new location"
+        android:layout_alignParentTop="true">
+    </TextView>
+
+
+    <fragment
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/upper"
+        class="com.google.android.gms.maps.MapFragment" />
+
+    <TextView
+        android:id="@+id/editText1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:alpha=".5"
+        android:background="#00000000"
+        android:gravity="center_horizontal"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        android:typeface="sans"
+        android:text="powered by Google Maps"
+        android:layout_alignParentBottom="true">
+    </TextView>
+
+</RelativeLayout>
+<!-- From: file:/E:/workspace/studio/app/src/main/res/layout/activity_choices.xml -->

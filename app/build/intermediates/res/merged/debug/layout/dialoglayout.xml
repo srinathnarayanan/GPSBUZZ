@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Give a name for the alarm "
+        android:layout_centerHorizontal="true"
+        android:textSize="16dp"
+        android:id="@+id/textView" />
+
+    <EditText
+        android:layout_height="wrap_content"
+        android:id="@+id/alarmname"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/textView"
+        android:layout_width="fill_parent" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Want to add any reminders?"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:layout_below="@+id/alarmname"
+        android:textSize="16dp"
+        android:id="@+id/textView2" />
+
+    <EditText
+        android:layout_height="wrap_content"
+        android:id="@+id/reminder"
+        android:hint="Remind me to ..."
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/textView2"
+        android:layout_width="fill_parent"
+        android:inputType="textCapSentences|textMultiLine"
+        android:maxLength="2000"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="How far away do you want to be alerted"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:layout_below="@+id/reminder"
+        android:textSize="16dp"
+        android:id="@+id/textView3" />
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/seekBar"
+        android:layout_below="@+id/textView3"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
+        android:max="480"/>
+
+   <RelativeLayout
+       android:layout_height="wrap_content"
+       android:layout_width="wrap_content"
+       android:layout_below="@+id/seekBar"
+       android:layout_marginTop="5dp"
+       android:layout_centerHorizontal="true">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="20"
+        android:textSize="14dp"
+        android:id="@+id/textView4" />
+       <TextView
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_toRightOf="@+id/textView4"
+           android:text=" meters"
+           android:textSize="14dp"
+           android:id="@+id/textView5" />
+</RelativeLayout>
+
+</RelativeLayout>
+<!-- From: file:/E:/workspace/studio/app/src/main/res/layout/dialoglayout.xml -->
