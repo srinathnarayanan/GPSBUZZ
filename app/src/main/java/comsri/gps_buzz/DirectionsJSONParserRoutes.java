@@ -28,7 +28,7 @@ public class DirectionsJSONParserRoutes
         JSONArray jSteps = null;
         JSONObject jDistance = null;
         JSONObject jDuration = null;
-        JSONObject summary = null;
+        String summary = null;
 
         try
         {
@@ -37,8 +37,13 @@ public class DirectionsJSONParserRoutes
 /** Traversing all routes */
             for (int i = 0; i < jRoutes.length(); i++)
             {
+                summary = ((JSONObject) jRoutes.get(i)).getString("summary");
                 jLegs = ((JSONObject) jRoutes.get(i)).getJSONArray("legs");
                 List<HashMap<String, String>> path = new ArrayList<HashMap<String, String>>();
+                HashMap<String, String> hmSummary = new HashMap<String, String>();
+                hmSummary.put("summary", summary);
+                path.add(hmSummary);
+
 
 /** Traversing all legs */
                 for (int j = 0; j < jLegs.length(); j++)
@@ -59,6 +64,33 @@ public class DirectionsJSONParserRoutes
 
 /** Adding duration object to the path */
                     path.add(hmDuration);
+
+                    jSteps = ((JSONObject) jLegs.get(j)).getJSONArray("steps");
+
+/** Traversing all steps */
+                String finals="";
+                    for (int k = 0; k < jSteps.length(); k++) {
+
+                       String modetype=(String) ( ((JSONObject) jSteps.get(k)).get("travel_mode"));
+                        if(modetype.equals("TRANSIT"))
+                        {
+                            //GET TRANSIT DETAILS->LINE->NAME/SHORTNAME
+                            JSONObject transitdetails=((JSONObject) jSteps.get(k)).getJSONObject("transit_details");
+                            JSONObject line=((JSONObject) transitdetails).getJSONObject("line");
+                            String s1=(String) ( ((JSONObject) line).get("name"));
+                            String s2=(String) ( ((JSONObject) line).get("short_name"));
+                            finals="\n"+s1+" ("+s2+")";
+
+                            hmSummary=path.remove(0);
+                            String s3=hmSummary.get("summary");
+                            hmSummary.put("summary", s3+finals);
+                            path.add(0,hmSummary);
+
+
+                        }
+
+                    }
+
 
                 }
                 routes.add(path);

@@ -11,33 +11,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
+import android.graphics.pdf.PdfDocument;
 import android.location.Address;
 import android.location.Geocoder;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.PagerTitleStrip;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
+import android.support.v4.view.PagerTitleStrip;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ImageSpan;
 import android.util.Log;
 import android.view.Display;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -53,6 +54,9 @@ import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.targets.ActionViewTarget;
 import com.github.amlcurran.showcaseview.targets.PointTarget;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -65,8 +69,8 @@ public class All4 extends FragmentActivity {
 
     SectionsPagerAdapter mSectionsPagerAdapter;
     static ViewPager mViewPager;
-    String source,dest;
-    public static LatLng origin,destination;
+    String source, dest;
+    public static LatLng origin, destination;
     public static CardUI mCardView1;
     public static CardUI mCardView2;
     public static CardUI mCardView3;
@@ -75,10 +79,11 @@ public class All4 extends FragmentActivity {
     public static DownloadTask downloadTask2;
     public static DownloadTask downloadTask3;
     public static DownloadTask downloadTask4;
-    public static int[] counter=new int[4];
-    public static ShowcaseView show=null;
+    public static int[] counter = new int[4];
+    public static ShowcaseView show = null;
     public static ViewTarget target2;
     public static PointTarget target1;
+    public static Context c;
 
 
     @Override
@@ -86,14 +91,15 @@ public class All4 extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all4);
 
+        c = this;
         downloadTask1 = new DownloadTask();
         downloadTask2 = new DownloadTask();
         downloadTask3 = new DownloadTask();
         downloadTask4 = new DownloadTask();
-        counter[0]=0;
-        counter[1]=0;
-        counter[2]=0;
-        counter[3]=0;
+        counter[0] = 0;
+        counter[1] = 0;
+        counter[2] = 0;
+        counter[3] = 0;
 
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -101,24 +107,24 @@ public class All4 extends FragmentActivity {
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mViewPager.setOffscreenPageLimit(4);
+        mViewPager.setCurrentItem(1);
 
         Bundle bundle = getIntent().getParcelableExtra("bundle");
         origin = bundle.getParcelable("from");
         destination = bundle.getParcelable("to");
-        source= getIntent().getStringExtra("source");
-        dest= getIntent().getStringExtra("dest");
+        source = getIntent().getStringExtra("source");
+        dest = getIntent().getStringExtra("dest");
 
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
         int width = size.x;
-        int height=size.y;
+        int height = size.y;
 
         final DBAdapter db = new DBAdapter(this);
         db.open();
 
-        if(db.tutorialcheck(2))
-        {
+        if (db.tutorialcheck(2)) {
 
             target2 = new ViewTarget(R.id.pager_title_strip, this);
             target1 = new PointTarget(width / 4, height / 5);
@@ -145,7 +151,7 @@ public class All4 extends FragmentActivity {
                                     break;
                                 case 1:
                                     mCardView1.setAlpha((float) 1);
-                                    db.settutorial(2,0);
+                                    db.settutorial(2, 0);
                                     show.setVisibility(View.GONE);
                                     break;
 
@@ -156,7 +162,6 @@ public class All4 extends FragmentActivity {
                     .build();
 
         }
-
     }
 
 
@@ -176,28 +181,27 @@ public class All4 extends FragmentActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.changering) {
-            Intent intent1 = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
-            intent1.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_RINGTONE);
-            intent1.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Tone");
-            intent1.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, (Uri) null);
-            this.startActivityForResult(intent1,5);
+            final Uri currentTone = RingtoneManager.getActualDefaultRingtoneUri(this, RingtoneManager.TYPE_ALL);
+            Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
+            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALL);
+            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Tone");
+            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, currentTone);
+            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false);
+            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
+            startActivityForResult(intent, RingtoneManager.TYPE_ALL);
 
-        }
-        else if (id==R.id.viewalarm)
-        {
+        } else if (id == R.id.viewalarm) {
 
-            Intent intent=new Intent(this,AlarmActivity.class);
-            intent.putExtra("view",1);
+            Intent intent = new Intent(this, AlarmActivity.class);
+            intent.putExtra("view", 1);
             startActivity(intent);
             return true;
-        }
-        else if (id==R.id.tutorial)
-        {
+        } else if (id == R.id.tutorial) {
             DBAdapter db = new DBAdapter(this);
             db.open();
             db.settutorial(2, 1);
 
-            Intent intent=new Intent(this,All4.class);
+            Intent intent = new Intent(this, All4.class);
             Bundle args = new Bundle();
             args.putParcelable("from", origin);
             args.putParcelable("to", destination);
@@ -214,54 +218,70 @@ public class All4 extends FragmentActivity {
     }
 
 
+
+
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
         FragmentManager fragm;
+
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
-            fragm=fm;
+            fragm = fm;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
 
-            Drawable drawable=null;
-            switch(position)
-            {
+            Drawable drawable = null;
+            String s="";
+            switch (position) {
                 case 0:
-                    drawable = All4.this.getResources().getDrawable( R.drawable.car );
+                    drawable = ContextCompat.getDrawable(c, R.drawable.car);
+                    s="     CAR     ";
                     break;
                 case 1:
-                    drawable = All4.this.getResources().getDrawable( R.drawable.bus );
+                    drawable = ContextCompat.getDrawable(c, R.drawable.bus);
+                    s="     TRANSIT     ";
                     break;
                 case 2:
-                    drawable = All4.this.getResources().getDrawable( R.drawable.cycle);
+                    drawable = ContextCompat.getDrawable(c, R.drawable.cycle);
+                    s="     CYCLE     ";
                     break;
                 case 3:
-                    drawable = All4.this.getResources().getDrawable( R.drawable.walks );
+                    drawable = ContextCompat.getDrawable(c, R.drawable.walk);
+                    s="     WALK     ";
                     break;
 
             }
-            SpannableStringBuilder sb = new SpannableStringBuilder(" "); // space added before text for convenience
-            drawable.setBounds(0, 0, drawable.getIntrinsicWidth()/2, drawable.getIntrinsicHeight()/2);
+
+
+            /*
+            SpannableStringBuilder sb = new SpannableStringBuilder(" "+s); // space added before text for convenience
+            drawable.setBounds(0, 0, drawable.getIntrinsicWidth()/4, drawable.getIntrinsicHeight()/4);
             ImageSpan span = new ImageSpan(drawable, ImageSpan.ALIGN_BASELINE);
             sb.setSpan(span, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            */
 
-            return sb;
+            return s;
         }
+
 
         @Override
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            if(position==0)
-            return FragmentDrive.newInstance();
-            else if (position==1)
+
+
+            this.getPageTitle(0);
+
+            if (position == 0)
+                return FragmentDrive.newInstance();
+            else if (position == 1)
                 return FragmentTransit.newInstance();
-            else if (position==2)
+            else if (position == 2)
                 return FragmentBicycle.newInstance();
             else
                 return FragmentWalking.newInstance();
@@ -282,24 +302,38 @@ public class All4 extends FragmentActivity {
         private static final String ARG_SECTION_NUMBER = "section_number";
 
         public ProgressBar p;
+
         public static FragmentDrive newInstance() {
             FragmentDrive fragment = new FragmentDrive();
 
             return fragment;
         }
 
-        public FragmentDrive() {
-        }
+
+        public FragmentDrive()
+        {}
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
+
             View rootView = inflater.inflate(R.layout.fragment_all4, container, false);
 
-            ImageView left=(ImageView)rootView.findViewById(R.id.left);
+            TextView top=(TextView)rootView.findViewById(R.id.top);
+            Drawable drawable = ContextCompat.getDrawable(c, R.drawable.car);
+
+            SpannableStringBuilder sb = new SpannableStringBuilder(" "); // space added before text for convenience
+            drawable.setBounds(0, 0, drawable.getIntrinsicWidth() / 4, drawable.getIntrinsicHeight() / 4);
+            ImageSpan span = new ImageSpan(drawable, ImageSpan.ALIGN_BASELINE);
+            sb.setSpan(span, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            top.setText(sb);
+
+
+
+            ImageView left = (ImageView) rootView.findViewById(R.id.left);
             left.setVisibility(View.INVISIBLE);
 
-            ImageView right=(ImageView)rootView.findViewById(R.id.right);
+            ImageView right = (ImageView) rootView.findViewById(R.id.right);
             right.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -308,9 +342,9 @@ public class All4 extends FragmentActivity {
             });
 
 
-            p=(ProgressBar)rootView.findViewById(R.id.progressBar);
-                String url = getDirectionsUrl(origin, destination, "driving");
-                downloadTask1.execute(new urlnumb(url, 1));
+            p = (ProgressBar) rootView.findViewById(R.id.progressBar);
+            String url = getDirectionsUrl(origin, destination, "driving");
+            downloadTask1.execute(new urlnumb(url, 1));
 
             mCardView1 = (CardUI) rootView.findViewById(R.id.cardsview);
             mCardView1.setSwipeable(false);
@@ -328,8 +362,8 @@ public class All4 extends FragmentActivity {
 
             return rootView;
         }
-        public void update()
-        {
+
+        public void update() {
             p.setVisibility(View.INVISIBLE);
 
         }
@@ -339,6 +373,7 @@ public class All4 extends FragmentActivity {
         private static final String ARG_SECTION_NUMBER = "section_number";
 
         public ProgressBar p;
+
         public static FragmentTransit newInstance() {
             FragmentTransit fragment = new FragmentTransit();
 
@@ -352,8 +387,17 @@ public class All4 extends FragmentActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_all4, container, false);
+            TextView top=(TextView)rootView.findViewById(R.id.top);
+            Drawable drawable = ContextCompat.getDrawable(c, R.drawable.bus);
 
-            ImageView left=(ImageView)rootView.findViewById(R.id.left);
+            SpannableStringBuilder sb = new SpannableStringBuilder(" "); // space added before text for convenience
+            drawable.setBounds(0, 0, drawable.getIntrinsicWidth() / 4, drawable.getIntrinsicHeight() / 4);
+            ImageSpan span = new ImageSpan(drawable, ImageSpan.ALIGN_BASELINE);
+            sb.setSpan(span, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            top.setText(sb);
+
+
+            ImageView left = (ImageView) rootView.findViewById(R.id.left);
             left.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -361,7 +405,7 @@ public class All4 extends FragmentActivity {
                 }
             });
 
-            ImageView right=(ImageView)rootView.findViewById(R.id.right);
+            ImageView right = (ImageView) rootView.findViewById(R.id.right);
             right.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -370,12 +414,12 @@ public class All4 extends FragmentActivity {
             });
 
 
-            p=(ProgressBar)rootView.findViewById(R.id.progressBar);
+            p = (ProgressBar) rootView.findViewById(R.id.progressBar);
 
             String url = getDirectionsUrl(origin, destination, "transit");
-            urlnumb urlnumb1=new urlnumb(url,2);
+            urlnumb urlnumb1 = new urlnumb(url, 2);
 
-            downloadTask2.execute(new urlnumb(url,2));
+            downloadTask2.execute(new urlnumb(url, 2));
 
             mCardView2 = (CardUI) rootView.findViewById(R.id.cardsview);
             mCardView2.setSwipeable(false);
@@ -393,8 +437,8 @@ public class All4 extends FragmentActivity {
 
             return rootView;
         }
-        public void update()
-        {
+
+        public void update() {
             p.setVisibility(View.INVISIBLE);
         }
     }
@@ -403,6 +447,7 @@ public class All4 extends FragmentActivity {
         private static final String ARG_SECTION_NUMBER = "section_number";
 
         public ProgressBar p;
+
         public static FragmentBicycle newInstance() {
             FragmentBicycle fragment = new FragmentBicycle();
 
@@ -417,8 +462,17 @@ public class All4 extends FragmentActivity {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_all4, container, false);
 
+            TextView top=(TextView)rootView.findViewById(R.id.top);
+            Drawable drawable = ContextCompat.getDrawable(c, R.drawable.cycle);
 
-            ImageView left=(ImageView)rootView.findViewById(R.id.left);
+            SpannableStringBuilder sb = new SpannableStringBuilder(" "); // space added before text for convenience
+            drawable.setBounds(0, 0, drawable.getIntrinsicWidth() / 4, drawable.getIntrinsicHeight() / 4);
+            ImageSpan span = new ImageSpan(drawable, ImageSpan.ALIGN_BASELINE);
+            sb.setSpan(span, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            top.setText(sb);
+
+
+            ImageView left = (ImageView) rootView.findViewById(R.id.left);
             left.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -426,7 +480,7 @@ public class All4 extends FragmentActivity {
                 }
             });
 
-            ImageView right=(ImageView)rootView.findViewById(R.id.right);
+            ImageView right = (ImageView) rootView.findViewById(R.id.right);
             right.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -435,9 +489,9 @@ public class All4 extends FragmentActivity {
             });
 
 
-            p=(ProgressBar)rootView.findViewById(R.id.progressBar);
+            p = (ProgressBar) rootView.findViewById(R.id.progressBar);
             String url = getDirectionsUrl(origin, destination, "bicycling");
-            downloadTask3.execute(new urlnumb(url,3));
+            downloadTask3.execute(new urlnumb(url, 3));
 
             mCardView3 = (CardUI) rootView.findViewById(R.id.cardsview);
             mCardView3.setSwipeable(false);
@@ -456,8 +510,8 @@ public class All4 extends FragmentActivity {
 
             return rootView;
         }
-        public void update()
-        {
+
+        public void update() {
             p.setVisibility(View.INVISIBLE);
         }
     }
@@ -466,6 +520,7 @@ public class All4 extends FragmentActivity {
         private static final String ARG_SECTION_NUMBER = "section_number";
 
         public ProgressBar p;
+
         public static FragmentWalking newInstance() {
             FragmentWalking fragment = new FragmentWalking();
 
@@ -480,11 +535,22 @@ public class All4 extends FragmentActivity {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_all4, container, false);
 
-            ImageView right=(ImageView)rootView.findViewById(R.id.right);
+
+            TextView top=(TextView)rootView.findViewById(R.id.top);
+            Drawable drawable = ContextCompat.getDrawable(c, R.drawable.walk);
+
+            SpannableStringBuilder sb = new SpannableStringBuilder(" "); // space added before text for convenience
+            drawable.setBounds(0, 0, drawable.getIntrinsicWidth() / 4, drawable.getIntrinsicHeight() / 4);
+            ImageSpan span = new ImageSpan(drawable, ImageSpan.ALIGN_BASELINE);
+            sb.setSpan(span, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            top.setText(sb);
+
+
+            ImageView right = (ImageView) rootView.findViewById(R.id.right);
             right.setVisibility(View.INVISIBLE);
 
 
-            ImageView left=(ImageView)rootView.findViewById(R.id.left);
+            ImageView left = (ImageView) rootView.findViewById(R.id.left);
             left.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -493,9 +559,9 @@ public class All4 extends FragmentActivity {
             });
 
 
-            p=(ProgressBar)rootView.findViewById(R.id.progressBar);
+            p = (ProgressBar) rootView.findViewById(R.id.progressBar);
             String url = getDirectionsUrl(origin, destination, "walking");
-            downloadTask4.execute(new urlnumb(url,4));
+            downloadTask4.execute(new urlnumb(url, 4));
 
             mCardView4 = (CardUI) rootView.findViewById(R.id.cardsview);
             mCardView4.setSwipeable(false);
@@ -514,30 +580,28 @@ public class All4 extends FragmentActivity {
 
             return rootView;
         }
-        public void update()
-        {
+
+        public void update() {
             p.setVisibility(View.INVISIBLE);
         }
     }
 
 
-
-    static public String getDirectionsUrl(LatLng origin, LatLng dest, String modetype)
-    {
+    static public String getDirectionsUrl(LatLng origin, LatLng dest, String modetype) {
         // Origin of route
         String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
 
         // Destination of route
         String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
 
-        String mode="mode="+modetype;
+        String mode = "mode=" + modetype;
 
-        String alternatives="alternatives="+"true";
+        String alternatives = "alternatives=" + "true";
         // Sensor enabled
         String sensor = "sensor=true";
 
         // Building the parameters to the web service
-        String parameters = str_origin + "&" + str_dest + "&" + mode+"&"+sensor+"&"+alternatives;
+        String parameters = str_origin + "&" + str_dest + "&" + mode + "&" + sensor + "&" + alternatives;
 
         // Output format
         String output = "json";
@@ -549,14 +613,11 @@ public class All4 extends FragmentActivity {
     }
 
 
-
-    static public String downloadUrl(String strUrl) throws IOException
-    {
+    static public String downloadUrl(String strUrl) throws IOException {
         String data = "";
         InputStream iStream = null;
         HttpURLConnection urlConnection = null;
-        try
-        {
+        try {
             URL url = new URL(strUrl);
 
             // Creating an http connection to communicate with url
@@ -573,8 +634,7 @@ public class All4 extends FragmentActivity {
             StringBuffer sb = new StringBuffer();
 
             String line = "";
-            while ((line = br.readLine()) != null)
-            {
+            while ((line = br.readLine()) != null) {
                 sb.append(line);
             }
 
@@ -582,11 +642,9 @@ public class All4 extends FragmentActivity {
 
             br.close();
 
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             Log.d("downloading failed", e.toString());
-        } finally
-        {
+        } finally {
             iStream.close();
             urlConnection.disconnect();
         }
@@ -603,13 +661,13 @@ public class All4 extends FragmentActivity {
             // For storing data from web service
             String data = "";
 
-            urlnumb urlnumb1=new urlnumb("",0);
-            try{
+            urlnumb urlnumb1 = new urlnumb("", 0);
+            try {
                 // Fetching the data from web service
                 urlnumb1.url = downloadUrl(url[0].url);
-                urlnumb1.number=url[0].number;
-            }catch(Exception e){
-                Log.d("Background Task",e.toString());
+                urlnumb1.number = url[0].number;
+            } catch (Exception e) {
+                Log.d("Background Task", e.toString());
             }
             return urlnumb1;
         }
@@ -627,10 +685,13 @@ public class All4 extends FragmentActivity {
         }
     }
 
-    /** A class to parse the Google Places in JSON format */
-    private class ParserTask extends AsyncTask<urlnumb, Integer, mode >{
+    /**
+     * A class to parse the Google Places in JSON format
+     */
+    private class ParserTask extends AsyncTask<urlnumb, Integer, mode> {
 
         int numb;
+
         // Parsing the data in non-ui thread
         @Override
         protected mode doInBackground(urlnumb... jsonData) {
@@ -638,19 +699,19 @@ public class All4 extends FragmentActivity {
             JSONObject jObject;
             List<List<HashMap<String, String>>> routes = null;
             ArrayList<String> travelmode;
-            mode a=null;
+            mode a = null;
 
-            try{
+            try {
                 jObject = new JSONObject(jsonData[0].url);
                 DirectionsJSONParserRoutes parser = new DirectionsJSONParserRoutes();
 
-                numb=jsonData[0].number;
+                numb = jsonData[0].number;
                 // Starts parsing data
-                a=parser.parse(jObject);
+                a = parser.parse(jObject);
                 routes = a.routes;
                 travelmode = a.travelmode;
 
-            }catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return a;
@@ -660,8 +721,8 @@ public class All4 extends FragmentActivity {
         @Override
         protected void onPostExecute(mode result) {
 
-             FragmentWalking fw1 = (FragmentWalking) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.pager + ":" + 3);
-                fw1.update();
+            FragmentWalking fw1 = (FragmentWalking) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.pager + ":" + 3);
+            fw1.update();
             FragmentDrive fw2 = (FragmentDrive) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.pager + ":" + 0);
             fw2.update();
             FragmentBicycle fw3 = (FragmentBicycle) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.pager + ":" + 2);
@@ -670,22 +731,22 @@ public class All4 extends FragmentActivity {
             fw4.update();
 
 
-            String top,bottom;
+            String top, bottom;
 
-                    CardUI m;
+            CardUI m;
 
-            if(numb==1)
-            m=mCardView1;
-            else if (numb==2)
-                m=mCardView2;
-            else if (numb==3)
-                m=mCardView3;
+            if (numb == 1)
+                m = mCardView1;
+            else if (numb == 2)
+                m = mCardView2;
+            else if (numb == 3)
+                m = mCardView3;
             else
-                m=mCardView4;
+                m = mCardView4;
 
-            if(result.routes.size()<1){
-                top="NO ROUTES AVAILABLE";
-                bottom="choose a different mode of transport";
+            if (result.routes.size() < 1) {
+                top = "NO ROUTES AVAILABLE";
+                bottom = "choose a different mode of transport";
 
                 MyPlayCard androidViewsCard = new MyPlayCard(top,
                         bottom, "#669900",
@@ -706,21 +767,24 @@ public class All4 extends FragmentActivity {
                 m.refresh();
 
 
-            }
-            else {
+            } else {
                 for (int i = 0; i < result.routes.size(); i++) {
                     List<HashMap<String, String>> path = result.routes.get(i);
 
                     HashMap<String, String> point = path.get(0);
+                    String summary = point.get("summary");
+                    point = path.get(1);
                     bottom = (String) point.get("distance");
-                    point= path.get(1);
+                    bottom += "\n" + summary;
+
+                    point = path.get(2);
                     top = (String) point.get("duration");
-                    counter[numb-1]++;
+                    counter[numb - 1]++;
 
                     final MyPlayCard androidViewsCard = new MyPlayCard(top,
                             bottom, "#669900",
                             "#669900", false, false);
-                    final int position=counter[numb-1];
+                    final int position = counter[numb - 1];
                     androidViewsCard.setOnClickListener(new View.OnClickListener() {
 
                         @Override
@@ -731,11 +795,11 @@ public class All4 extends FragmentActivity {
                             Bundle args = new Bundle();
                             args.putParcelable("from", origin);
                             args.putParcelable("to", destination);
-                            args.putInt("notif",0);
-                            intent.putExtra("bundle",args);
-                            intent.putExtra("numb",numb);
+                            args.putInt("notif", 0);
+                            intent.putExtra("bundle", args);
+                            intent.putExtra("numb", numb);
                             intent.putExtra("count", position);
-                            intent.putExtra("source",source);
+                            intent.putExtra("source", source);
                             intent.putExtra("dest", dest);
 
                             startActivity(intent);
@@ -753,10 +817,21 @@ public class All4 extends FragmentActivity {
     }
 
 
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        switch (requestCode) {
+            case RingtoneManager.TYPE_ALL:
+                if (resultCode == RESULT_OK) {
+                    Uri notifToneUri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+                    RingtoneManager.setActualDefaultRingtoneUri(this, RingtoneManager.TYPE_ALL, notifToneUri);
+                }
+                break;
+        }
+    }
+
     @Override
-    public void onBackPressed()
-    {
-        Intent intent=new Intent(All4.this,MainActivity.class);
+    public void onBackPressed() {
+        Intent intent = new Intent(All4.this, MainActivity.class);
         startActivity(intent);
         finish();
     }

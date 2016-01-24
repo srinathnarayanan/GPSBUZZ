@@ -27,6 +27,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
+import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -57,6 +58,8 @@ import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 import cardsui.*;
 public class MainActivity extends Activity {
@@ -106,6 +109,11 @@ public class MainActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		AdView mAdView = (AdView) findViewById(R.id.adView);
+		AdRequest adRequest = new AdRequest.Builder().build();
+		mAdView.loadAd(adRequest);
+
 		context=this;
 
 		final ImageView stripe = (ImageView) findViewById(R.id.stripe);
@@ -351,6 +359,15 @@ public class MainActivity extends Activity {
 				}
 			}
 		}
+		switch (requestCode) {
+			case RingtoneManager.TYPE_ALL:
+				if (resultCode == RESULT_OK) {
+					Uri notifToneUri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+					RingtoneManager.setActualDefaultRingtoneUri(this,RingtoneManager.TYPE_ALL,notifToneUri);
+				}
+				break;
+		}
+
 	}
 
 	public static ArrayList<String> autocomplete(String input) {
@@ -558,11 +575,16 @@ public class MainActivity extends Activity {
 
 		//noinspection SimplifiableIfStatement
 		if (id == R.id.changering) {
-			Intent intent1 = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
-			intent1.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_RINGTONE);
-			intent1.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Tone");
-			intent1.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, (Uri) null);
-			this.startActivityForResult(intent1,5);
+
+			final Uri currentTone= RingtoneManager.getActualDefaultRingtoneUri(this, RingtoneManager.TYPE_ALL);
+			Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
+			intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALL);
+			intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Tone");
+			intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, currentTone);
+			intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false);
+			intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
+			startActivityForResult(intent, RingtoneManager.TYPE_ALL) ;
+
 
 		}
 		else if (id==R.id.viewalarm)
@@ -585,7 +607,9 @@ public class MainActivity extends Activity {
 
 		}
 
+
 		return super.onOptionsItemSelected(item);
 	}
+
 
 }

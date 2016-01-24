@@ -1,26 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    android:padding="16dp">
-
+    android:layout_width="match_parent" android:layout_height="match_parent">
+<RelativeLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp"
+    android:padding="16dp"
+    style="@style/btnStyleBlackpearl">
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Give a name for the alarm "
         android:layout_centerHorizontal="true"
         android:textSize="16dp"
+        android:textColor="#fff"
         android:id="@+id/textView" />
 
     <EditText
         android:layout_height="wrap_content"
         android:id="@+id/alarmname"
+        android:textColor="#fff"
         android:layout_centerHorizontal="true"
         android:layout_below="@id/textView"
-        android:layout_width="fill_parent" />
+        android:layout_width="fill_parent"
+        android:layout_marginTop="15dp"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Want to add any reminders?"
+        android:textColor="#fff"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
         android:layout_below="@+id/alarmname"
@@ -30,19 +38,22 @@
     <EditText
         android:layout_height="wrap_content"
         android:id="@+id/reminder"
+        android:textColor="#fff"
         android:hint="Remind me to ..."
         android:layout_centerHorizontal="true"
         android:layout_below="@id/textView2"
         android:layout_width="fill_parent"
+        android:layout_marginTop="15dp"
         android:inputType="textCapSentences|textMultiLine"
         android:maxLength="2000"/>
 
     <TextView
         android:layout_width="wrap_content"
+        android:textColor="#fff"
         android:layout_height="wrap_content"
         android:text="How far away do you want to be alerted"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="30dp"
         android:layout_below="@+id/reminder"
         android:textSize="16dp"
         android:id="@+id/textView3" />
@@ -61,20 +72,49 @@
        android:layout_width="wrap_content"
        android:layout_below="@+id/seekBar"
        android:layout_marginTop="5dp"
-       android:layout_centerHorizontal="true">
+       android:layout_centerHorizontal="true"
+       android:id="@+id/relativeLayout">
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="20"
+        android:textColor="#fff"
         android:textSize="14dp"
         android:id="@+id/textView4" />
        <TextView
            android:layout_width="wrap_content"
+           android:textColor="#fff"
            android:layout_height="wrap_content"
            android:layout_toRightOf="@+id/textView4"
            android:text=" meters"
            android:textSize="14dp"
            android:id="@+id/textView5" />
 </RelativeLayout>
+<RelativeLayout
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:layout_below="@+id/relativeLayout">
+    <Button
+        style="@style/btnStyleBlackpearl"
+        android:layout_width="wrap_content"
+        android:layout_toRightOf="@+id/button2"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_height="wrap_content"
+        android:text="OK"
+        android:id="@+id/button"
 
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        style="@style/btnStyleBlackpearl"
+        android:layout_marginTop="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        android:id="@+id/button2"
+        />
+</RelativeLayout>
+</RelativeLayout>
 </RelativeLayout>

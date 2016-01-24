@@ -17,5 +17,7 @@
     <string name="title_section4">Walking</string>
     <string name="title_activity_alarm">Alarms</string>
     <string name="title_activity_current_loc">Current Location</string>
+    <string name="banner_ad_unit_id1">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="banner_ad_unit_id2">ca-app-pub-3940256099942544/6300978112</string>
 
 </resources>

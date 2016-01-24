@@ -42,6 +42,9 @@ import android.widget.Toast;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.targets.PointTarget;
 
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.AdRequest;
+
 
 public class AlarmActivity extends Activity {
     Double latitude;
@@ -60,6 +63,10 @@ public class AlarmActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm);
 
+
+        AdView mAdView = (AdView) findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -119,7 +126,10 @@ public class AlarmActivity extends Activity {
             radius=intent.getIntExtra(AlarmDialog.radius, 20);
 
             if (db.notPresent(alarm)) {
+                Toast.makeText(this,alarm+" alarm added",Toast.LENGTH_LONG).show();
                 long a = db.addAlarm(alarm,reminder);
+                System.out.println(a);
+
                 LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
                 Intent intent1 = new Intent("comsri.gps_buzz.AlarmReceiverActivity");
@@ -128,12 +138,12 @@ public class AlarmActivity extends Activity {
                 intent1.putExtra("lati",latitude);
                 intent1.putExtra("longi",longitude);
                 intent1.putExtra("reminder",reminder);
-                intent1.putExtra("radius",radius);
+                intent1.putExtra("radius", radius);
 
                 PendingIntent proximityIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) a, intent1, 0);
 
 
-                System.out.println("radius:"+radius);
+
                 locationManager.addProximityAlert(
                         latitude, // the latitude of the central point of the alert region
                         longitude, // the longitude of the central point of the alert region
@@ -143,6 +153,10 @@ public class AlarmActivity extends Activity {
                 );
 
 
+            }
+            else
+            {
+                Toast.makeText(this,"Alarm is already present. Delete and reset.",Toast.LENGTH_LONG).show();
             }
 
         }
@@ -218,11 +232,14 @@ public void onBackPressed()
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.changering) {
-            Intent intent1 = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
-            intent1.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_RINGTONE);
-            intent1.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Tone");
-            intent1.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, (Uri) null);
-            this.startActivityForResult(intent1,5);
+            final Uri currentTone= RingtoneManager.getActualDefaultRingtoneUri(this, RingtoneManager.TYPE_ALL);
+            Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
+            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALL);
+            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Tone");
+            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, currentTone);
+            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false);
+            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
+            startActivityForResult(intent, RingtoneManager.TYPE_ALL) ;
 
         }
         else if (id==R.id.tutorial)
@@ -240,6 +257,18 @@ public void onBackPressed()
         return super.onOptionsItemSelected(item);
     }
 
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        switch (requestCode) {
+            case RingtoneManager.TYPE_ALL:
+                if (resultCode == RESULT_OK) {
+                    Uri notifToneUri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+                    RingtoneManager.setActualDefaultRingtoneUri(this,RingtoneManager.TYPE_ALL,notifToneUri);
+                }
+                break;
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

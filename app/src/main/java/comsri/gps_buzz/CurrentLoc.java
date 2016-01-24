@@ -3,6 +3,7 @@ package comsri.gps_buzz;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.media.RingtoneManager;
@@ -19,6 +20,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -34,6 +37,7 @@ public class CurrentLoc extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_current_loc);
 
@@ -42,14 +46,26 @@ public class CurrentLoc extends Activity {
 
             String name = intent.getStringExtra("name");
             String reminer = intent.getStringExtra("reminder");
+            int radius= intent.getIntExtra("radius", 20);
+        System.out.print(radius);
             TextView reminders=(TextView)findViewById(R.id.tv1);
-            reminders.setText("REMINDER : "+reminer);
+        if(reminer.length()>0)
+            reminders.setText("REMINDER\n"+reminer);
+        else
+            reminders.setText("NO REMINDERS");
+
 
             newpoint = new LatLng(intent.getDoubleExtra("lati",0), intent.getDoubleExtra("longi", 0));
             initilizeMap();
 
             CameraPosition cameraPosition = new CameraPosition.Builder().target(newpoint).zoom(16).build();
-            googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        Circle circle = googleMap.addCircle(new CircleOptions()
+                .center(newpoint)
+                .radius(radius)
+                .strokeColor(Color.BLUE)
+                .strokeWidth(2)
+        .fillColor(0x100000FF));
 
             MarkerOptions options = new MarkerOptions();
 
@@ -83,13 +99,6 @@ public class CurrentLoc extends Activity {
             intent1.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, (Uri) null);
             this.startActivityForResult(intent1,5);
 
-        }
-        else if (id==R.id.viewalarm)
-        {
-            Intent intent=new Intent(this,AlarmActivity.class);
-            intent.putExtra("view",1);
-            startActivity(intent);
-            return true;
         }
 
         return super.onOptionsItemSelected(item);

@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -62,6 +63,9 @@ public class AlarmDialog extends DialogFragment {
         final EditText reminders=(EditText)dialoglayout.findViewById(R.id.reminder);
         final SeekBar seek=(SeekBar)dialoglayout.findViewById(R.id.seekBar);
         final TextView t4=(TextView)dialoglayout.findViewById(R.id.textView4);
+        final Button ok=(Button) dialoglayout.findViewById(R.id.button);
+        final Button cancel=(Button) dialoglayout.findViewById(R.id.button2);
+
 
         seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
@@ -86,6 +90,33 @@ public class AlarmDialog extends DialogFragment {
 
 
         alarmname.setText(s.split(",")[0]);
+
+        ok.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(c, AlarmActivity.class);
+                intent.putExtra(alarm, alarmname.getText().toString());
+                intent.putExtra(reminder, reminders.getText().toString());
+                intent.putExtra(lati, latitude);
+                intent.putExtra(longi, longitude);
+                intent.putExtra(radius, Integer.parseInt(t4.getText().toString()));
+
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+
+
+            }
+        });
+
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+                Toast.makeText(getActivity(), "select a location", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        /*
         builder.setPositiveButton("OK",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
@@ -107,6 +138,7 @@ public class AlarmDialog extends DialogFragment {
                 Toast.makeText(getActivity(), "select a location", Toast.LENGTH_LONG).show();
             }
         });
+        */
         // Create the AlertDialog object and return it
         return builder.create();
     }

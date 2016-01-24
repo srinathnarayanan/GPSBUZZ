@@ -489,11 +489,16 @@ public class Choices extends Activity {
 		//noinspection SimplifiableIfStatement
 		if (id == R.id.changering) {
 
-			Intent intent1 = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
-			intent1.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_RINGTONE);
-			intent1.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Tone");
-			intent1.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, (Uri) null);
-			this.startActivityForResult(intent1,5);
+
+			final Uri currentTone= RingtoneManager.getActualDefaultRingtoneUri(this, RingtoneManager.TYPE_ALL);
+			Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
+			intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALL);
+			intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Tone");
+			intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, currentTone);
+			intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false);
+			intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
+			startActivityForResult(intent, RingtoneManager.TYPE_ALL) ;
+
 
 		}
 		else if (id==R.id.viewalarm)
@@ -525,10 +530,22 @@ public class Choices extends Activity {
 
 		}
 
+
 		return super.onOptionsItemSelected(item);
 	}
 
 
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+		switch (requestCode) {
+			case RingtoneManager.TYPE_ALL:
+				if (resultCode == RESULT_OK) {
+					Uri notifToneUri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+					RingtoneManager.setActualDefaultRingtoneUri(this,RingtoneManager.TYPE_ALL,notifToneUri);
+				}
+				break;
+		}
+	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.

@@ -27,13 +27,14 @@ public class ProximityIntentReceiver extends BroadcastReceiver {
 	 @Override
 	 public void onReceive(Context context, Intent intent) {
 
-		 System.out.println("hello");
 		 PendingIntent p=PendingIntent.getBroadcast(context, 0, intent, -1);
 		 
 		 String name= intent.getExtras().getString("name");
 		 Double latitude=intent.getExtras().getDouble("lati");
 		 Double longitude=intent.getExtras().getDouble("longi");
 		 String reminder= intent.getExtras().getString("reminder");
+		 Integer radius=intent.getExtras().getInt("radius");
+
 
 
 		 String k=LocationManager.KEY_PROXIMITY_ENTERING;
@@ -59,10 +60,13 @@ if(state){
 
 
 	Intent notificationIntent = new Intent(context, CurrentLoc.class);
+	notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 	notificationIntent.putExtra("lati",latitude);
 	notificationIntent.putExtra("longi",longitude);
 	notificationIntent.putExtra("name",name);
 	notificationIntent.putExtra("reminder",reminder);
+	notificationIntent.putExtra("radius",radius);
+
 
 	notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 	PendingIntent pintent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -71,7 +75,7 @@ if(state){
 				.setContentIntent(pintent)
 			    .setContentTitle("ALMOST THERE...")
 			    .setContentText(name+" is here. Click for more.")
-			    .setSmallIcon(R.drawable.ic_launcher)
+			    .setSmallIcon(R.drawable.notif)
 			    .setWhen(System.currentTimeMillis())
 			    .setTicker(name+" is here")
 			    .setLights(Color.GREEN, 500, 500)
@@ -86,9 +90,6 @@ if(state){
 			mNotificationManager.notify(
 			            notifyID,
 			            mNotifyBuilder.build());
-		
-	
-	
 
 	   
 	  }//end of if

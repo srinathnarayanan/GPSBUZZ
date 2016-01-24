@@ -5,9 +5,15 @@
     tools:context=".CurrentLoc" >
 
 <TextView
+    android:layout_margin="5dp"
+    style="@style/btnStyleBlackpearl"
     android:padding="16dp"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
+    android:gravity="center"
+    android:textColor="#fff"
+    android:textSize="16dp"
+    android:text="hello"
     android:id="@+id/tv1"/>
     <fragment
         android:id="@+id/map"

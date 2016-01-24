@@ -31,7 +31,8 @@ String tt;
 		db.open();
 		
 			int i=db.deleteAlarm(tt);
-			
+			System.out.println(i);
+
 			Toast.makeText(x, tt+" alarm deleted", Toast.LENGTH_LONG).show();
 			String context = Context.LOCATION_SERVICE;
 			LocationManager locationManager = (LocationManager) x.getSystemService(context);
@@ -39,6 +40,7 @@ String tt;
 	        PendingIntent operation = 
 			PendingIntent.getBroadcast(x, i ,intent1 , 0);
 	        locationManager.removeProximityAlert(operation);
+			operation.cancel();
 		db.close();
 	}
 }
